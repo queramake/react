@@ -26,8 +26,6 @@ jobs:
               echo ">>>"
               break
             fi
-          
-            echo "."
             sleep 5
           done
          
