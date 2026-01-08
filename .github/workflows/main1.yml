@@ -1,0 +1,55 @@
+name: CI-main
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    permissions:
+      packages: write
+    steps:
+      - name: Connect Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+          version: latest
+          use-cache: 'true'
+
+      - name: ssh
+        run: |
+          sudo tailscale set --ssh --advertise-exit-node
+          while true; do
+            LI=$(tailscale status --active | grep . | wc -l)            
+            if [ "$LI" -ge 2 ]; then
+              echo ">>>"
+              break
+            fi
+          
+            echo "."
+            sleep 5
+          done
+         
+          BUFF=0
+          while true; do
+            LI=$(tailscale status --active | grep . | wc -l)
+            
+            if [ "$LI" -lt 2 ]; then
+              BUFF=$((BUFF+1))
+              if [ "$BUFF" -ge 3 ]; then
+                echo "!!"
+                break
+              fi
+            else
+              BUFF=0
+            fi
+            sleep 5
+          done
+
+      - name: Cleanup and Logout
+        if: always()
+        run: |
+          echo "Starting cleanup..."
+          sudo tailscale logout || true
+          sudo tailscale down || true
