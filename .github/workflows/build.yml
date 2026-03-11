@@ -11,11 +11,11 @@ jobs:
         packages: write
     steps:
       - name: Generate Unique Hostname
-              id: vars
-              run: |
-                CLEAN_ACTOR=$(echo "${{ github.actor }}" | sed 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
-                TIME_STAMP=$(date -u +%H%M)  
-                echo "ts_hostname=${CLEAN_ACTOR}-${TIME_STAMP}" >> $GITHUB_OUTPUT
+        id: vars
+        run: |
+          CLEAN_ACTOR=$(echo "${{ github.actor }}" | sed 's/[^a-zA-Z0-9]//g' | tr '[:upper:]' '[:lower:]')
+          TIME_STAMP=$(date -u +%H%M)  
+          echo "ts_hostname=${CLEAN_ACTOR}-${TIME_STAMP}" >> $GITHUB_OUTPUT
       - name: Connect Tailscale
         uses: tailscale/github-action@v3
         with:
