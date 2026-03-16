@@ -21,9 +21,13 @@ jobs:
         # timeout-minutes: 30
         run: |
           sudo tailscale set --ssh --advertise-exit-node
-          tail -f /dev/null
-          # Verify exit node configuration
-          tailscale status
+          while true; do
+            if tailscale status --active | grep -q "; offline"; then
+              echo "Tailscale is showing as offline. Finishing step..."
+              break
+            fi
+            sleep 60
+          done
           
       - name: Cleanup and Logout
         if: always()
